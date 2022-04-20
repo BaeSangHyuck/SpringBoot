@@ -1,0 +1,453 @@
+<!--
+    input태그에서의 th:value와 th:field
+    - th:value : input태그에 원하는 값을 출력할 때 사용
+    - th:field : 작성한 변수명으로 id, name을 설정하고 value속성에 값을 출력할 때 사용
+
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Board</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+        .line{
+            border-bottom: 1px solid #ff8b77;
+        }
+        p {
+            margin: 0;
+        }
+        .bigPictureWrapper {
+            margin: 0 auto;
+        }
+
+        .uploadResult {
+            width: 100%;
+        }
+
+        .uploadResult ul {
+            overflow-x: scroll;
+            display: flex;
+            justify-content: center;
+        }
+
+        .uploadResult ul li {
+            list-style: none;
+        }
+
+        .bigPicture {
+            text-align: center;
+        }
+
+        .bigPicture img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="is-preload">
+<!-- Main -->
+<div id="main">
+    <div class="wrapper">
+        <div class="inner">
+
+            <!-- Elements -->
+            <header class="major">
+                <h1>Board</h1>
+                <p>게시글 상세보기</p>
+            </header>
+            <!-- Table -->
+            <h3><a href="javascript:goList();" class="button small">목록 보기</a></h3>
+            <div class="content">
+                <div class="form">
+                    <form action="/board/remove" th:object="${board}">
+                        <input type="hidden" th:field="${criteria.pageNum}">
+                        <input type="hidden" th:field="${criteria.amount}">
+                        <input type="hidden" th:field="${criteria.type}">
+                        <input type="hidden" th:field="${criteria.keyword}">
+                        <div class="fields">
+                            <div class="field">
+                                <h4>번호</h4>
+                                <input type="text" th:field="*{bno}" readonly/>
+                            </div>
+                            <div class="field">
+                                <h4>제목</h4>
+                                <input type="text" th:field="*{title}" readonly/>
+                            </div>
+                            <div class="field">
+                                <h4>내용</h4>
+                                <textarea name="content" rows="6" style="resize:none" th:text="*{content}" readonly></textarea>
+                            </div>
+                            <div class="field">
+                                <h4>작성자</h4>
+                                <input type="text" th:field="*{writer}" readonly/>
+                            </div>
+                            <div class="field">
+                                <h4>첨부파일</h4>
+                                <p id="msg"></p>
+                            </div>
+                            <div class="field">
+                                <div class="uploadResult">
+                                    <ul></ul>
+                                </div>
+                            </div>
+                            <div class="bigPictureWrapper">
+                                <div class="bigPicture"></div>
+                            </div>
+                        </div>
+                        <ul class="actions special">
+                            <li>
+                                <input type="button" class="button" value="수정" onclick="goUpdate()"/>
+                                <input type="submit" class="button" value="삭제"/>
+                            </li>
+                        </ul>
+                        <ul class="icons">
+                            <li style="display: block">
+                                <span class="icon solid fa-envelope"></span>
+                                <strong>댓글</strong>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" class="register button primary small" style="width: 100%">댓글 등록</a>
+                        <div style="display: none" class="register-form">
+                            <div>
+                                <h4>작성자</h4>
+                                <input type="text" name="replier" placeholder="Replier">
+                            </div>
+                            <div>
+                                <h4>댓글</h4>
+                                <textarea rows="6" name="reply" placeholder="Reply" style="resize: none"></textarea>
+                            </div>
+                            <div style="text-align: right">
+                                <a href="javascript:void(0)" class="finish button primary small">등록</a>
+                                <a href="javascript:void(0)" class="cancel button primary small">취소</a>
+                            </div>
+                        </div>
+                        <ul class="replies"></ul>
+                    </form>
+                    <div class="paging" style="text-align: center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Scripts -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.dropotron.min.js"></script>
+<script src="/js/browser.min.js"></script>
+<script src="/js/breakpoints.min.js"></script>
+<script src="/js/util.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/reply.js"></script>
+</body>
+<script th:inline="javascript">
+    let pageInfo = [[${criteria.listLink}]];
+    let bno = [[${board.bno}]];
+    let pageNum = 1;
+
+    const $replyUL = $("ul.replies");
+
+    showList(pageNum);
+
+    function showList(page){
+        replyService.getList({
+            bno: bno, page: page || 1
+        }, function(replyCount, list){
+            let str = "";
+
+           if(list == null || list.length == 0){
+               $replyUL.html("<p>등록된 댓글이 없습니다.</p>");
+               return;
+           }
+
+           // for(let i=0; i<list.length; i++){ //댓글 목록 개수만큼 반복
+           //     str += "<li style='display: block' data-rno='" + list[i].rno + "'>";
+           //     str += "<strong>" + list[i].replier + "</strong>";
+           //     str += "<div style='display: flex; justify-content: space-between'>";
+           //     str += "<p>" + list[i].reply + "</p>";
+           //     str += "<p><strong class='date'></strong></p>";
+           //     str += "</div>";
+           //     str += "<div class='line'></div>";
+           //     str += "</li>";
+           //     //댓글을 작성한 시간을 모듈에 전달하여, 알맞는 날짜 혹은 시간을 가져온다.
+           //     replyService.getReplyDateByController(list[i].replyDate, function(date){
+           //         //가져온 날짜 혹은 시간을 알맞는 곳에 뿌려준다.
+           //         $("strong.date")[i].innerHTML = date;
+           //     });
+           // }
+
+
+           // modify : 수정
+           // finish : 수정완료
+           // remove : 삭제
+           $.each(list, function(index, item){
+               str += "<li style='display: block' data-rno='" + item.rno + "'>";
+               str += "<div style='display: flex; justify-content: space-between;'>";
+               str += "<strong style='display:block;'>" + item.replier + "</strong>";
+               str += "<div>";
+               str += "<a class='modify " + iotem.rn + "' style='cursor: pointer;'>수정</a>"
+               str += "<a class='finish " + item.rno + "' style='display: none; cursor: pointer;'>수정완료</a>"
+               str += "&nbsp;&nbsp;<a class='remove' href='" + item.rno + "'>삭제</a>"
+               str += "</div>";
+               str += "</div>";
+               str += "<div style='display: flex; justify-content: space-between'>";
+               str += "<p class='reply " + item.rno + "'>" + item.reply + "</p>";
+               str += "<p style='text-align: right;'><strong class='date'>작성된 날짜 ";
+               str += replyService.getReplyDateByJavascript(item.replyDate)
+               if(item.replyDate != item.updateDate){
+                   str += "<br>수정된 날짜 " + replyService.getReplyDateByJavascript(item.updateDate);
+               }
+               str += "</strong></p>";
+               str += "</div>";
+               str += "<div class='line'></div>";
+               str += "</li>";
+           });
+           $replyUL.html(str);
+           showReplyPage(replyCount);
+        });
+    }
+
+    //댓글 삭제
+    $(".replies").on("click", "a.remove", function(e){
+        e.preventDefault();
+        let rno = $(this).attr("href");
+        replyService.remove(rno, function(result){
+            alert(result);
+            showList(pageNum);
+        })
+    });
+
+    let check = false;
+
+    $(".replies").on("click", "a.modify", function(e){
+        e.preventDefault();
+        if(check) {alert("수정중인 댓글이 있습니다."); return;}
+        let str = "";
+
+        $("a." + this.classList[1]).show();
+        $(this).hide();
+        str = "<textarea style='resize: none;' class='" + this.classList[1] + "'>";
+        str += $("p." + this.classList[1]).text();
+        str += "</textarea>";
+        $("p." + this.classList[1]).html(str);
+        $("p." + this.classList[1]).css("width", "83%");
+        check = true;
+    });
+
+    $(".replies").on("click", "a.finish", function(e){
+        //let rno = $(this).closest("li").data("rno")
+        let rno = this.classList[1];
+        let reply = $("textarea." + rno).val();
+
+        if(!reply){alert("댓글의 내용을 입력해주세요."); return;}
+
+        replyService.modify({
+           rno: rno, reply: reply
+        }, function(result){
+            alert(result);
+            showList(pageNum);
+            check = false;
+        });
+
+    });
+
+    // $(".replies").on("click", "a", function(e){
+    //     e.preventDefault();
+    //     if($(this).text() == "수정"){
+    //         $(this).hide();
+    //         $(".finish" + $(this).attr("href")).show();
+    //     }
+    // });
+
+    // 수정 버튼을 누르면 수정이 없어지고, 수정 완료가 나타난다.
+    // p태그는 textarea태그로 변경되어야 한다.
+
+    // 댓글 등록
+    $(".finish").on("click", function(e){
+        e.preventDefault();
+        let replier = $("input[name='replier']").val();
+        let reply = $("textarea[name='reply']").val();
+
+        if(!replier || !reply) {return;}
+
+        replyService.add({
+            bno: bno, reply: reply, replier: replier
+        }, function(result){
+            alert(result);
+            $("input[name='replier']").val("");
+            $("textarea[name='reply']").val("");
+            $("div.register-form").hide();
+            $("a.register").show();
+            showList(pageNum);
+        })
+
+    })
+
+    // 페이징 처리
+    function showReplyPage(replyCount){
+        let endNum = Math.ceil(pageNum / 10.0) * 10;
+        let startNum = endNum - 9;
+        let realEnd = Math.ceil(replyCount / 10.0);
+        let str = "";
+        const $pagingTag = $("div.paging");
+
+        if(endNum > realEnd) {
+            endNum = realEnd;
+        }
+
+        let prev = startNum > 1;
+        let next = endNum * 10 < replyCount;
+
+        if(matchMedia("screen and (max-width:918px)").matches){ //918px 미만일 때
+            if(pageNum > 1){
+                str += "<a class='changePage' href='" + (pageNum - 1) + "'><code>&lt;</code></a>"
+            }
+            str += "<code>" + pageNum + "</code>";
+            if(pageNum < realEnd){
+                str += "<a class='changePage' href='" + (pageNum + 1) + "'><code>&gt;</code></a>"
+            }
+
+        }else{ //918px 이상일 때
+            if(prev){
+                str += "<a class='changePage' href='" + (startNum - 1) + "'><code>&lt;</code></a>"
+            }
+            for(let i=startNum; i<=endNum; i++){
+                if(pageNum == i){
+                    str += "<code>" + i + "</code>";
+                    continue;
+                }
+                str += "<a class='changePage' href='" + i + "'><code>" + i + "</code></a>";
+            }
+            if(next){
+                str += "<a class='changePage' href='" + (endNum + 1) + "'><code>&gt;</code></a>"
+            }
+        }
+        $pagingTag.html(str);
+    }
+
+    // 이벤트 위임
+    // 기존 문서에 작성되지 않은 html코드에 이벤트를 줄 때에는,
+    // 컴파일 순서 상 dom으로 작성한 코드가 더 늦게 실행되기 때문에,
+    // 기존 문서에 작성된 html코드에 이벤트를 주고, 그 안에 추가될 자식 요소에 이벤트를 전달하는 형식으로 개발한다.
+    $(".paging").on("click", "a.changePage", function(e){
+        e.preventDefault();
+        pageNum = $(this).attr("href");
+        showList(pageNum);
+    });
+
+    $("a.register").click(function(e){
+        e.preventDefault();
+        $("div.register-form").show();
+        $(this).hide();
+    });
+
+    $("a.cancel").click(function(e){
+        e.preventDefault();
+        $("div.register-form").hide();
+        $("a.register").show();
+    });
+
+    function goUpdate(){
+        let bno = [[${board.bno}]];
+        location.href = '/board/modify' + pageInfo + '&bno=' + bno;
+    }
+
+    function goList(){
+        location.href = "/board/list" + pageInfo;
+    }
+/*###########################################################################################*/
+/*####################################   ATTACH    ##########################################*/
+/*###########################################################################################*/
+    let openCheck = false;
+    function showImage(fileCallPath){
+        let time = 0;
+        if(openCheck){
+            $(".bigPicture").animate({width: "0%", height: "0%"}, 1000);
+            time = 500;
+        }
+
+        /*처음 이미지를 클릭했을 때에는 1초를 기다리지 않는다.*/
+        setTimeout(function(){
+            $(".bigPictureWrapper").css("display", "flex").show();
+            $(".bigPicture").html("<img src='/upload/display?fileName=" + fileCallPath + "'>")
+                .animate({width:"100%", height:"100%"}, 500);
+            openCheck = true;
+        }, time);
+    }
+
+    $(".bigPictureWrapper").on("click", function(e){
+        $(".bigPicture").animate({width: "0%", height: "0%"}, 500);
+
+        setTimeout(function(){
+            $(".bigPictureWrapper").hide();
+            openCheck = false;
+        }, 300);
+    });
+
+    $(document).ready(function(){
+        (function(){
+            $.getJSON("/board/getAttachList", {bno: bno}, function(attachList){
+                if(attachList.length == 0){$("p#msg").text("첨부파일이 없습니다."); return;}
+
+                let str = "";
+
+                $.each(attachList, function(i, attach){
+                    if(!attach.image){
+                        let fileCallPath = attach.uploadPath + "/" + attach.uuid + "_" + attach.fileName;
+                        str += "<li><a href='/upload/download?fileName=" + fileCallPath + "'><img src='/images/attach.png' width='100px' height='100px'>" + attach.fileName + "</a>";
+                        str += "</li>";
+                    }else{
+                        let fileCallPath = attach.uploadPath + "/s_" + attach.uuid + "_" + attach.fileName;
+                        let originCallPath = attach.uploadPath + "/" + attach.uuid + "_" + attach.fileName;
+                        str += "<li><a href=\"javascript:showImage(\'" + originCallPath + "\')\"><img src='/upload/display?fileName=" + fileCallPath + "' width='100px' height='100px'>" + attach.fileName + "</a>";
+                        str += "</li>";
+                    }
+                });
+
+                $(".uploadResult ul").html(str);
+            })
+        }());
+
+
+        // console.log(replyService.name);
+
+        // replyService.add({
+        //     reply: "JS Test", replier:"test", bno: bno
+        // }, function(result){
+        //     alert("RESULT: " + result);
+        // });
+
+        // replyService.getList({bno: bno}, function(list){
+        //     console.log(list);
+        // })
+
+        // replyService.read(41, function(result){
+        //     console.log(result);
+        // });
+
+        // replyService.remove(1, function(result){
+        //     alert("RESULT : " + result);
+        // });
+
+        // replyService.modify({
+        //     rno: 13, reply: "수정 모듈 테스트"
+        // }, function(result){
+        //     alert("RESULT : " + result);
+        // });
+
+    });
+</script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Board</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+        .bigPictureWrapper {
+            margin: 0 auto;
+        }
+
+        .uploadResult {
+            width: 100%;
+        }
+
+        .uploadResult ul {
+            overflow-x: scroll;
+            display: flex;
+            justify-content: center;
+        }
+
+        .uploadResult ul li {
+            list-style: none;
+        }
+
+        .bigPicture {
+            text-align: center;
+        }
+
+        .bigPicture img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="is-preload">
+<!-- Main -->
+<div id="main">
+    <div class="wrapper">
+        <div class="inner">
+            <!-- Elements -->
+            <header class="major">
+                <h1>Board</h1>
+                <p>게시글 등록</p>
+            </header>
+            <!-- Table -->
+            <h3><a href="/board/list" class="button small">목록 보기</a></h3>
+            <div class="content">
+                <div class="form">
+                    <form method="post" action="/board/register" id="registForm" enctype="multipart/form-data">
+                        <div class="fields">
+                            <div class="field">
+                                <h4>제목</h4>
+                                <input name="title" placeholder="Title" type="text" />
+                            </div>
+                            <div class="field">
+                                <h4>내용</h4>
+                                <textarea name="content" rows="6" placeholder="Content" style="resize:none"></textarea>
+                            </div>
+                            <div class="field">
+                                <h4>작성자</h4>
+                                <input name="writer" placeholder="Writer" type="text" />
+                            </div>
+                            <div class="field">
+                                <h4>첨부파일</h4>
+                                <input type="file" name="uploadFile" multiple>
+                            </div>
+                            <div class="field">
+                                <div class="uploadResult">
+                                    <ul></ul>
+                                </div>
+                            </div>
+                            <div class="bigPictureWrapper">
+                                <div class="bigPicture"></div>
+                            </div>
+                        </div>
+                        <ul class="actions special">
+                            <li><input type="submit" class="button" value="등록" /></li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Scripts -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.dropotron.min.js"></script>
+<script src="/js/browser.min.js"></script>
+<script src="/js/breakpoints.min.js"></script>
+<script src="/js/util.js"></script>
+<script src="/js/main.js"></script>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let check = false;
+    function showImage(fileCallPath){
+        let time = 0;
+        if(check){
+            $(".bigPicture").animate({width: "0%", height: "0%"}, 1000);
+            time = 500;
+        }
+
+        /*처음 이미지를 클릭했을 때에는 1초를 기다리지 않는다.*/
+        setTimeout(function(){
+            $(".bigPictureWrapper").css("display", "flex").show();
+            $(".bigPicture").html("<img src='/upload/display?fileName=" + fileCallPath + "'>")
+                .animate({width:"100%", height:"100%"}, 500);
+            check = true;
+        }, time);
+    }
+
+    $(".bigPictureWrapper").on("click", function(e){
+        $(".bigPicture").animate({width: "0%", height: "0%"}, 500);
+
+        setTimeout(function(){
+            $(".bigPictureWrapper").hide();
+            check = false;
+        }, 300);
+    });
+
+    $(document).ready(function(){
+        let regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
+        let maxSize = 1024 * 1024 * 40;
+        let uploadResult = $(".uploadResult ul");
+
+        function checkFile(fileName, fileSize){
+            if(regex.test(fileName)){
+                alert("업로드할 수 없는 파일의 형식입니다.");
+                return false;
+            }
+            if(fileSize > maxSize){
+                alert("파일 사이즈 초과");
+                return false;
+            }
+            return true;
+        }
+
+        function showUploadFile(uploadResultArr){
+            let str = "";
+            $(uploadResultArr).each(function(i, result){
+                let fileName = result.fileName.substring(result.fileName.indexOf("_") + 1);
+                if(!result.image){ // 이미지가 아닐 때
+                    let fileCallpath = result.uploadPath + "/" + result.fileName;
+                    str += "<li data-path='" + result.uploadPath + "' data-uuid='" + result.uuid + "' data-filename='" + result.fileName.substring(result.fileName.indexOf("_") + 1) + "' data-type='" + result.image +"'>";
+                    str += "<a href='/upload/download?fileName=" + fileCallpath +"'>";
+                    str += "<img src='/images/attach.png' width='100px' height='100px'>" + fileName + "</a>";
+                    str += "<span data-file='" + fileCallpath + "' data-type='file'>x</span></li>";
+                }else{ // 이미지 일 때
+                    let fileCallpath = result.uploadPath + "/s_" + result.fileName;
+                    let originCallPath = result.uploadPath + "/" + result.fileName;
+                    str += "<li data-path='" + result.uploadPath + "' data-uuid='" + result.uuid + "' data-filename='" + result.fileName.substring(result.fileName.indexOf("_") + 1) + "' data-type='" + result.image +"'>";
+                    str += "<a href=\"javascript:showImage(\'" + originCallPath + "\')\">";
+                    str += "<img src='/upload/display?fileName=" + fileCallpath + "' width='100px' height='100px'>" + fileName + "</a>";
+                    str += "<span data-file='" + fileCallpath + "' data-type='image'>x</span></li>";
+                }
+            });
+            uploadResult.append(str);
+        }
+
+        $(".uploadResult").on("click", "span", function(e){
+            let targetFile = $(this).data("file");
+            let type = $(this).data("type");
+            let li = $(this).parents("li");
+            $.ajax({
+                type: "POST",
+                url: "/upload/deleteFile",
+                data: {fileName: targetFile, type: type},
+                success: function(result){
+                    alert(result);
+                    li.remove();
+                }
+            });
+
+        });
+
+        $("input[type='file']").change(function(e){
+            let inputFile = $("input[name='uploadFile']");
+            let files = inputFile[0].files;
+            let formData = new FormData();
+
+            for(let i = 0; i < files.length; i++){
+                if(!checkFile(files[i].name, files[i].size)){
+                    continue;
+                }
+                formData.append("uploadFile", files[i]);
+            }
+
+            $.ajax({
+                url: "/upload/uploadAjaxAction",
+                data: formData,
+                type: "POST",
+                // 현재 설정된 헤더 설정을 기본 방식으로 변경하지 못하도록 false로 설정
+                processData: false,
+                contentType: false,
+                success: function(result){
+                    showUploadFile(result);
+                }
+            });
+        });
+
+        $("input[type='submit']").on("click", function(e){
+            e.preventDefault();
+            let form = $("form#registForm");
+            let str = "";
+
+            $.each($(".uploadResult ul li"), function(i, li){
+                str += "<input type='hidden' name='attachVOList[" + i + "].fileName' value='" + $(li).data("filename") + "'>"
+                str += "<input type='hidden' name='attachVOList[" + i + "].uploadPath' value='" + $(li).data("path") + "'>"
+                str += "<input type='hidden' name='attachVOList[" + i + "].uuid' value='" + $(li).data("uuid") + "'>"
+                str += "<input type='hidden' name='attachVOList[" + i + "].image' value='" + $(li).data("type") + "'>"
+            });
+
+            form.append(str).submit();
+        });
+    });
+</script>
+</html>
