@@ -10,4 +10,6 @@ public interface AttachMapper {
     public void insert(AttachVO attachVO);
     public void delete(String uuid);
     public List<AttachVO> select(Long bno);
+    public String getUUID(Long bno);
+    public List<AttachVO> getOldFiles();
 }

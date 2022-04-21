@@ -14,4 +14,15 @@
         SELECT NUM, FILENAME, UPLOADPATH, UUID, IMAGE, BNO FROM TBL_ATTACH
         WHERE BNO = #{bno}
     </select>
+
+    <select id="getUUID" resultType="string">
+        SELECT UUID FROM TBL_ATTACH WHERE BNO = #{bno}
+        GROUP BY UUID
+    </select>
+
+    <select id="getOldFiles" resultType="attachVO">
+        SELECT NUM, FILENAME, UPLOADPATH, UUID, IMAGE, BNO
+        FROM TBL_ATTACH
+        WHERE UPLOADPATH = TO_CHAR(SYSDATE-1, 'YYYY/MM/DD')
+    </select>
 </mapper>

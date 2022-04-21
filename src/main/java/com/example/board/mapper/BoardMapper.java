@@ -29,4 +29,7 @@ public interface BoardMapper {
 
 //    전체 게시글 개수
     public int getTotal(Criteria criteria);
+
+//    게시글에 작성된 댓글 수 수정
+    public void updateReplyCount(Long bno, int status);
 }

@@ -15,4 +15,5 @@ public class BoardVO {
     private String regdate;
     private String updateDate;
     private List<AttachVO> attachVOList;
+    private Long replyCount;
 }

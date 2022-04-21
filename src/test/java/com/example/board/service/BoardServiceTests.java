@@ -1,5 +1,6 @@
 package com.example.board.service;
 
+import com.example.board.domain.vo.AttachVO;
 import com.example.board.domain.vo.BoardVO;
 import com.example.board.domain.vo.Criteria;
 import lombok.NonNull;
@@ -13,6 +14,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class BoardServiceTests {
     @Autowired
     private BoardService boardService;
+
+    @Test
+    public void testGetList(){
+        boardService.getList(12583010L).stream().map(AttachVO::toString).forEach(log::info);
+    }
 
 //    @Test
 //    public void testGetTotal(){
@@ -63,10 +69,10 @@ public class BoardServiceTests {
 //        log.info("---------------------------------------------------------------------");
 //    }
 
-    @Test
-    public void testGetList(){
-        boardService.getList(new Criteria(4, 10)).forEach(board -> log.info(board.toString()));
-    }
+//    @Test
+//    public void testGetList(){
+//        boardService.getList(new Criteria(4, 10)).forEach(board -> log.info(board.toString()));
+//    }
 }
 
 
