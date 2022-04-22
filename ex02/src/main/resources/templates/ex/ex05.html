@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EX05</title>
+</head>
+<body>
+    <h1>EX05</h1>
+
+    <table border="1">
+        <tr>
+            <th>이름</th>
+            <th>나이</th>
+        </tr>
+        <!--부모 요소에 th:object를 설정한 뒤 자식 요소에서 *{}로 필드를 접근할 수 있다.-->
+        <tr th:object="${exampleVO}">
+            <td th:text="*{name}"></td>
+            <td th:text="*{age}"></td>
+        </tr>
+    </table>
+</body>
+</html>

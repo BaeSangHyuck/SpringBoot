@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #success{
+            display: flex;
+        }
+
+    </style>
+</head>
+<body>
+<div id="success">
+    <div>
+        <img src="/weapon_success.png" style="width: 300px">
+    </div>
+    <div>
+        <h1>강화 성공</h1>
+        <p th:text="|무기공격력 : ${attack}|"></p>
+    </div>
+</div>
+</body>
+</html>

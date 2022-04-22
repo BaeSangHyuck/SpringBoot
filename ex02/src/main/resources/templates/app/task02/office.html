@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>checkIn</title>
+</head>
+<body>
+<h1>출,퇴근하기</h1>
+<form>
+    <div>
+        <input type="text" name="name" placeholder="이름을 입력하세요">
+    </div>
+    <div>
+        <input type="submit" value="출근하기" formaction="/ex/getToWork">
+        <input type="submit" value="퇴근하기" formaction="/ex/leaveWork">
+    </div>
+</form>
+
+</body>
+</html>

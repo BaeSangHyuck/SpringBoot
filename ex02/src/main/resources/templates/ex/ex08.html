@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EX08</title>
+</head>
+<body>
+<h1>EX08</h1>
+
+<table border="1">
+    <tr>
+        <th>번호</th>
+        <th>국어</th>
+        <th>영어</th>
+        <th>수학</th>
+        <th>총점</th>
+        <th>평균</th>
+    </tr>
+    <tr th:object="${taskVO}">
+        <td th:text="|*{num}번|"></td>
+        <td th:text="|*{kor}점|"></td>
+        <td th:text="|*{eng}점|"></td>
+        <td th:text="|*{math}점|"></td>
+        <td th:text="|총점 : *{kor+eng+math}|"></td>
+<!--        <td th:text="|평균 : *{(kor+eng+math)/3}|"></td>-->
+        <td th:text="'평균 : ' + *{(kor+eng+math)/3}+'점'"></td>
+
+    </tr>
+</table>
+</body>
+</html>

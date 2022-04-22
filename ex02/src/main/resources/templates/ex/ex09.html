@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>EX09</title>
+</head>
+<body>
+<h1>EX09</h1>
+
+<table border="1">
+    <tr>
+        <th>이름</th>
+        <th>나이</th>
+        <th>성별</th>
+    </tr>
+    <tr th:object="${exampleVO}">
+        <td th:text="*{name}"></td>
+        <td th:text="|*{age}살|"></td>
+        <td th:text="${gender}"></td>
+    </tr>
+    </tr>
+</table>
+</body>
+</html>
