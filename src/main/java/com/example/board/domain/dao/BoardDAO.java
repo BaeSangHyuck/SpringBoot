@@ -19,5 +19,5 @@ public class BoardDAO {
     public boolean remove(Long bno) {return boardMapper.delete(bno) == 1;}
     public BoardVO get(Long bno) {return boardMapper.get(bno);}
     public int getTotal(Criteria criteria) {return boardMapper.getTotal(criteria);}
-    public void updateReplyCount(Long bno, int status){boardMapper.updateReplyCount(bno, status);}
+    public void updateReplyCount(Long bno, int status) {boardMapper.updateReplyCount(bno, status);}
 }

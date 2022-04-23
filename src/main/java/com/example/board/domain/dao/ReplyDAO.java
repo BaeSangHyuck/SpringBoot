@@ -20,8 +20,6 @@ public class ReplyDAO {
         return replyMapper.insert(replyVO);
     }
 
-
-
     public ReplyVO read(Long bno){
         log.info("reply read........." + bno);
         return replyMapper.read(bno);

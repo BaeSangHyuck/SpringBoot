@@ -165,7 +165,7 @@
                     str += "<img src='/images/attach.png' width='100px' height='100px'>" + fileName + "</a>";
                     str += "<span data-file='" + fileCallpath + "' data-type='file'>x</span></li>";
                 }else{ // 이미지 일 때
-                    let fileCallpath = result.uploadPath + "/s_" + result.fileName;
+                    let fileCallpath = result.uploadPath +  +"/s_" result.fileName;
                     let originCallPath = result.uploadPath + "/" + result.fileName;
                     str += "<li data-path='" + result.uploadPath + "' data-uuid='" + result.uuid + "' data-filename='" + result.fileName.substring(result.fileName.indexOf("_") + 1) + "' data-type='" + result.image +"'>";
                     str += "<a href=\"javascript:showImage(\'" + originCallPath + "\')\">";

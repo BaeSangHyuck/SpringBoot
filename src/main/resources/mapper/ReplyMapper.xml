@@ -33,7 +33,7 @@
         SELECT RNO, BNO, REPLY, REPLIER, REPLYDATE, UPDATEDATE
         FROM
             (
-                SELECT /*+ INDEX_DESC(TBL_REPLY SYS_C007014)*/
+                SELECT /*+ INDEX_DESC(TBL_REPLY SYS_C007377)*/
                 ROWNUM RN, RNO, BNO, REPLY, REPLIER, REPLYDATE, UPDATEDATE
                 FROM TBL_REPLY
                 WHERE BNO = #{bno}

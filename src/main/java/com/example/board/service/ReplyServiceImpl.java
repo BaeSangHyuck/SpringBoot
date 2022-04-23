@@ -21,7 +21,7 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public boolean register(ReplyVO replyVO) {
         log.info("reply register......." + replyVO);
-        boardDAO.updateReplyCount(replyVO.getBno(),1);
+        boardDAO.updateReplyCount(replyVO.getBno(), 1);
         return replyDAO.register(replyVO) == 1;
     }
 
@@ -34,7 +34,7 @@ public class ReplyServiceImpl implements ReplyService{
     @Override
     public boolean remove(Long rno) {
         log.info("reply remove........." + rno);
-        boardDAO.updateReplyCount(replyDAO.read(rno).getBno(),-1);
+        boardDAO.updateReplyCount(replyDAO.read(rno).getBno(), -1);
         return replyDAO.remove(rno) == 1;
     }
 

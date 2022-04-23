@@ -35,8 +35,8 @@
             SELECT BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE, REPLYCOUNT
             FROM
                 (
-                SELECT /*+ INDEX_DESC(TBL_BOARD SYS_C007002)*/
-                ROWNUM RN, BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE,REPLYCOUNT
+                SELECT /*+ INDEX_DESC(TBL_BOARD SYS_C007350)*/
+                ROWNUM RN, BNO, TITLE, CONTENT, WRITER, REGDATE, UPDATEDATE, REPLYCOUNT
                 FROM TBL_BOARD WHERE ]]>
                 <include refid="search"></include>
          <![CDATA[
@@ -94,7 +94,6 @@
     <update id="updateReplyCount">
         UPDATE TBL_BOARD
         SET REPLYCOUNT = REPLYCOUNT + #{status}
-        WHERE BNO=#{bno}
+        WHERE BNO = #{bno}
     </update>
-
 </mapper>

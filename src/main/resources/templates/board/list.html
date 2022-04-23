@@ -127,10 +127,7 @@
                     <th:block th:each="board:${list}">
                         <tr class="tBody" th:object="${board}">
                             <td class="bno" th:text="*{bno}"></td>
-                            <td class="title"><a class="goRead" th:text="*{title}" th:href="*{bno}"></a>
-                                <th:block th:if="*{replyCount.toString()} == '0'" th:text="'[' + *{replyCount} + ']'"/>
-                                <th:block th:unless="*{replyCount.toString()} == '0'" th:text="'[+' + *{replyCount} + ']'"/>
-                            </td>
+                            <td class="title"><a class="goRead" th:text="*{title}" th:href="*{bno}"></a><th:block th:text="'[' + *{replyCount} + ']'"/></td>
                             <td class="writer" th:text="*{writer}"></td>
                             <td class="regDate" th:text="*{regdate}"></td>
                             <td class="updateDate" th:text="*{updateDate}"></td>
@@ -201,7 +198,7 @@
     });
 
     $("a.goRead").click(function(e){
-        e.preventDefault();
+       e.preventDefault();
         location.href = "/board/read" + pageInfo + "&bno=" + $(this).attr("href");
     });
 

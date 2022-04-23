@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -23,21 +22,20 @@ public class FileCheckTask {
 
     private final AttachDAO attachDAO;
 
-
     /*
-     *   0 * * * * * : 매 분 0초마다
-     *   0/1 * * * * : 매 1초 간격
-     *   0 0/1 * * * : 매 1분 간격
-     *   0 0/5 * ? : 매 5분 간격
-     *   0 0 0/1 * * : 매 1시간 간격
-     *   0 0 0 * * ? : 매일 0시 마다
-     *   0 0 0 1 * ? : 매월 1일 마다
-     *   * 10-13 * * * * : 매 10, 11, 12, 13분에 동작한다.
-     * */
+    *   0 * * * * * : 매 분 0초마다
+    *   0/1 * * * * : 매 1초 간격
+    *   0 0/1 * * * : 매 1분 간격
+    *   0 0/5 * ? : 매 5분 간격
+    *   0 0 0/1 * * : 매 1시간 간격
+    *   0 0 0 * * ? : 매일 0시 마다
+    *   0 0 0 1 * ? : 매월 1일 마다
+    *   * 10-13 * * * * : 매 10, 11, 12, 13분에 동작한다.
+    * */
     @Scheduled(cron = "0 0 2 * * *")
     public void checkFiles() throws Exception{
-        log.warn("File Check Task run..................");
-        log.warn("======================================");
+       log.warn("File Check Task run..................");
+       log.warn("======================================");
 
         List<AttachVO> fileList = attachDAO.getOldFiles();
         //모델 객체에 있는 uploadPath만 가져오기 위해 map을 사용한다.
@@ -65,3 +63,15 @@ public class FileCheckTask {
         return sdf.format(yesterday.getTime());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

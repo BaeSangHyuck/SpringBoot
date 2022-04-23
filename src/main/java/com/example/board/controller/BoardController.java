@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import com.example.board.aspect.annotation.LogStatus;
 import com.example.board.domain.vo.AttachVO;
 import com.example.board.domain.vo.BoardVO;
 import com.example.board.domain.vo.Criteria;
@@ -38,11 +39,9 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
+    @LogStatus
     @GetMapping("/list")
     public void list(Criteria criteria, Model model){
-        log.info("---------------------------");
-        log.info("list");
-        log.info("---------------------------");
         //pageDTO를 전달
         model.addAttribute("list", boardService.getList(criteria));
         model.addAttribute("pageDTO", new PageDTO(criteria, boardService.getTotal(criteria)));
@@ -50,12 +49,9 @@ public class BoardController {
 
     @GetMapping("/register") public void register(){}
 
+    @LogStatus
     @PostMapping("/register")
     public RedirectView register(BoardVO boardVO, RedirectAttributes rttr){
-        log.info("---------------------------");
-        log.info("register, " + boardVO);
-        log.info("---------------------------");
-
         if(boardVO.getAttachVOList() != null){
             boardVO.getAttachVOList().forEach(attach -> log.info(attach.toString()));
         }
@@ -74,22 +70,17 @@ public class BoardController {
         return new RedirectView("list");
     }
 
+    @LogStatus
     @GetMapping({"/read", "/modify"})
     public void read(Long bno, Criteria criteria, HttpServletRequest request, Model model){
-        log.info("---------------------------");
-        log.info(request.getRequestURI() + ", " + bno);
-        log.info("---------------------------");
-
         model.addAttribute("board", boardService.get(bno));
         model.addAttribute("criteria", criteria);
     }
 
+    @LogStatus
     @GetMapping("/remove")
     public RedirectView remove(Long bno, Criteria criteria, RedirectAttributes rttr){
         String result = null;
-        log.info("---------------------------");
-        log.info("remove, " + bno);
-        log.info("---------------------------");
 //        List<AttachVO> attachVOList = boardService.getList(bno);
         if(boardService.remove(bno)){
 //            deleteFiles(attachVOList);
@@ -105,12 +96,10 @@ public class BoardController {
         return new RedirectView("list");
     }
 
+    @LogStatus
     @PostMapping("/modify")
     public RedirectView modify(BoardVO boardVO, Criteria criteria, RedirectAttributes rttr){
         String result = null;
-        log.info("---------------------------");
-        log.info("modify, " + boardVO);
-        log.info("---------------------------");
 
 //        Redirect로 전송 시
 //        addAttribute()를 사용하면 컨트롤러에 파라미터가 전달되고 그걸 통해서 화면으로 간다.
@@ -123,15 +112,15 @@ public class BoardController {
         return new RedirectView("list");
     }
 
+    @LogStatus
     @GetMapping("/getAttachList")
     @ResponseBody
     public List<AttachVO> getAttachList(Long bno){
-        log.info("getAttachList : " + bno);
         return boardService.getList(bno);
     }
 
+    @LogStatus
     private void deleteFiles(List<AttachVO> attachVOList){
-        log.info("delete attach files.........");
         log.info(attachVOList.toString());
 
         if(attachVOList == null){return;}
