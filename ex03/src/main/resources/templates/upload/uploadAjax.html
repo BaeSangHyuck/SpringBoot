@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>파일 업로드</title>
+    <style>
+        .uploadResult ul {
+            display: flex;
+            justify-content: center;
+        }
+
+        .uploadResult ul li {
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <input type="file" name="uploadFile" multiple>
+</div>
+<div class="uploadResult">
+    <ul></ul>
+</div>
+<button id="uploadBtn">upload</button>
+<div class="bigPictureWrapper">
+    <div class="bigPicture"></div>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let check = false;
+    function showImage(fileCallPath){
+        let time = 0;
+        if(check){
+            $(".bigPicture").animate({width: "0%", height: "0%"}, 1000);
+            time = 1000;
+        }
+
+        /*처음 이미지를 클릭했을 때에는 1초를 기다리지 않는다.*/
+        setTimeout(function(){
+            $(".bigPictureWrapper").css("display", "flex").show();
+            $(".bigPicture").html("<img src='/upload/display?fileName=" + fileCallPath + "'>")
+                .animate({width:"100%", height:"100%"}, 1000);
+            check = true;
+        }, time);
+    }
+
+    $(".bigPictureWrapper").on("click", function(e){
+        $(".bigPicture").animate({width: "0%", height: "0%"}, 1000);
+
+        setTimeout(function(){
+            $(".bigPictureWrapper").hide();
+            check = false;
+        }, 700);
+    });
+
+    $(document).ready(function(){
+        let regex = new RegExp("(.*?)\.(exe|sh|zip|alz)$");
+        let maxSize = 1024 * 1024 * 40;
+        let uploadResult = $(".uploadResult ul");
+
+        function checkFile(fileName, fileSize){
+            if(regex.test(fileName)){
+                alert("업로드할 수 없는 파일의 형식입니다.");
+                return false;
+            }
+            if(fileSize > maxSize){
+                alert("파일 사이즈 초과");
+                return false;
+            }
+            return true;
+        }
+
+        function showUploadFile(uploadResultArr){
+            let str = "";
+            $(uploadResultArr).each(function(i, result){
+                let fileName = result.fileName.substring(result.fileName.indexOf("_") + 1);
+                if(!result.image){ // 이미지가 아닐 때
+                    let fileCallpath = result.uploadPath + "/" + result.fileName;
+                    str += "<li><a href='/upload/download?fileName=" + fileCallpath +"'>";
+                    str += "<img src='/image/attach.png' width='100px' height='100px'>" + fileName + "</a>";
+                    str += "<span data-file='" + fileCallpath + "' data-type='file'>x</span></li>";
+                }else{ // 이미지 일 때
+                    let fileCallpath = result.uploadPath + "/s_" + result.fileName;
+                    let originCallPath = result.uploadPath + "/" + result.fileName;
+                    str += "<li><a href=\"javascript:showImage(\'" + originCallPath + "\')\">";
+                    str += "<img src='/upload/display?fileName=" + fileCallpath + "' width='100px' height='100px'>" + fileName + "</a>";
+                    str += "<span data-file='" + fileCallpath + "' data-type='image' class='delete "+i+"'>x</span></li>";
+                }
+            });
+            uploadResult.append(str);
+        }
+
+
+        $(".uploadResult").on("click", "span", function(e){
+            let targetFile = $(this).data("file");
+            let type = $(this).data("type");
+            let li = $(this).parent("li");
+
+            $.ajax({
+                type: "POST",
+                url: "deleteFile",
+                data: {fileName: targetFile, type: type},
+                success: function(result){
+                    alert(result);
+                    li.remove();
+                }
+            });
+
+        });
+
+        $("button#uploadBtn").click(function(e){
+            let inputFile = $("input[name='uploadFile']");
+            let files = inputFile[0].files;
+            let formData = new FormData();
+
+            for(let i = 0; i < files.length; i++){
+                if(!checkFile(files[i].name, files[i].size)){
+                    continue;
+                }
+                formData.append("uploadFile", files[i]);
+            }
+
+            $.ajax({
+                url: "uploadAjaxAction",
+                data: formData,
+                type: "POST",
+                // 현재 설정된 헤더 설정을 기본 방식으로 변경하지 못하도록 false로 설정
+                processData: false,
+                contentType: false,
+                success: function(result){
+                    showUploadFile(result);
+                }
+            });
+
+        });
+    });
+</script>
+</html>
