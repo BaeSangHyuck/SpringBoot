@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성시간</th>
+    </tr>
+    <!--부모 요소에 th:object를 설정한 뒤 자식 요소에서 *{}로 필드를 접근할 수 있다.-->
+    <th:block th:each="board:${list}">
+        <tr th:object="${board}">
+            <th th:text="*{bno}"></th>
+            <td th:text="*{title}"></td>
+            <td th:text="*{writer}"></td>
+            <td th:text="*{regdate}"></td>
+        </tr>
+    </th:block>
+</table>
+</body>
+</html>

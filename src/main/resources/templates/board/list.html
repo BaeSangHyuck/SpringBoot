@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Board</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="/css/main.css" type="text/css"/>
+    <style>
+        .big-width {display: block;}
+        .small-width {display: none;}
+        h3.lnb {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+
+        div.field select {
+            height: 41px;
+        }
+
+        div.field div input[name='keyword']{
+            width: 72%;
+            height: 41px;
+            display: inline;
+        }
+
+        div.field div a.button.small{
+            height: 41px;
+        }
+
+        @media (max-width: 680px) {
+            .writer {display: none;}
+            .regDate {display: none;}
+            .updateDate {display: none;}
+            .big-width {display: none;}
+            .small-width {display: block;}
+            h3.lnb {
+                display: block;
+                position: relative;
+            }
+
+            div.register-wrap {
+                position: absolute;
+                top: 87px;
+                width: 100%;
+            }
+
+            div.register-wrap a {
+                width: 100%;
+                font-size: 1.2rem !important;
+            }
+
+            div.fields {
+                position: absolute;
+                width: 100%;
+            }
+
+            div.field div input[name='keyword'] {
+                width: 82.4%;
+            }
+
+            div.field div a.button.small {
+                width: 18%;
+                line-height: 3.6;
+                margin-left: -5px;
+            }
+
+            div.table-wrapper {
+                margin-top: 178px;
+            }
+
+        }
+    </style>
+</head>
+<body class="is-preload">
+<!-- Main -->
+<div id="main">
+    <div class="wrapper">
+        <div class="inner">
+
+            <!-- Elements -->
+            <header class="major">
+                <h1>Board</h1>
+                <p>게시판 목록</p>
+            </header>
+            <!-- Table -->
+            <h3 class="lnb">
+                <div class="register-wrap" style="line-height: 3;">
+                    <a href="/board/register" class="button small">글 등록</a>
+                </div>
+                <div class="fields">
+                    <form name="searchForm" action="/board/list">
+                        <div class="field" th:object="${pageDTO}">
+                            <select name="type" th:object="${criteria}">
+                                <option value="">검색 기준</option>
+                                <option value="C" th:selected="*{type} == 'C'">내용</option>
+                                <option value="T" th:selected="*{type} == 'T'">제목</option>
+                                <option value="W" th:selected="*{type} == 'W'">작성자</option>
+                                <option value="TC" th:selected="*{type} == 'TC'">제목 또는 내용</option>
+                                <option value="CW" th:selected="*{type} == 'CW'">내용 또는 작성자</option>
+                                <option value="TW" th:selected="*{type} == 'TW'">제목 또는 작성자</option>
+                                <option value="TCW" th:selected="*{type} == 'TCW'">제목 또는 작성자 또는 내용</option>
+                            </select>
+                            <div th:object="${criteria}">
+                                <input type="text" name="keyword" th:value="*{keyword}">
+                                <a href="javascript:goSearch()" class="button small icon solid fa-search"></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                </form>
+            </h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr class="tHead">
+                        <th class="bno">번호</th>
+                        <th class="title">제목</th>
+                        <th class="writer">작성자</th>
+                        <th class="regDate">작성일</th>
+                        <th class="updateDate">수정일</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="board:${list}">
+                        <tr class="tBody" th:object="${board}">
+                            <td class="bno" th:text="*{bno}"></td>
+                            <td class="title"><a class="goRead" th:text="*{title}" th:href="*{bno}"></a><th:block th:text="'[' + *{replyCount} + ']'"/></td>
+                            <td class="writer" th:text="*{writer}"></td>
+                            <td class="regDate" th:text="*{regdate}"></td>
+                            <td class="updateDate" th:text="*{updateDate}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                    <tfoot>
+                    </tfoot>
+                </table>
+                <!--페이징 처리 진행-->
+                <div th:object="${pageDTO}">
+                    <div class="big-width" style="text-align: center">
+                        <!--
+                            each문에서 시작값과 끝값을 직접 정하고 싶을 때에는 numbers 객체를 사용한다.
+                            타임리프에서 미리 만들어놓은 필드를 사용할 때 #을 붙여주고,
+                            numbers 안에 있는 sequence()를 통해 원하는 반복횟수를 결정할 수 있다.
+                            th:each="변수명:${#numbers.sequence(시작값, 끝값)"
+
+                            th:if문에 조건식을 작성하면 조건식이 참일 경우 해당 태그가 출력된다.
+                            만약 조건식이 참이 아닐 때를 처리해야 한다면 th:unless를 사용하여 if의 조건식과 동일하게 설정해준다.
+                        -->
+                        <!--이전 버튼-->
+                        <a class="changePage" th:if="*{prev}" th:href="*{startPage - 1}"><code>&lt;</code></a>
+                        <th:block th:each="num:${#numbers.sequence(pageDTO.getStartPage(), pageDTO.getEndPage())}">
+                            <code th:if="${pageDTO.criteria.getPageNum() == num}" th:text="${num}"></code>
+                            <a class="changePage" th:unless="${pageDTO.criteria.getPageNum() == num}" th:href="${num}">
+                                <code th:text="${num}"></code>
+                            </a>
+                        </th:block>
+                        <!--다음 버튼-->
+                        <a class="changePage" th:if="*{next}" th:href="*{endPage + 1}"><code>&gt;</code></a>
+                    </div>
+                    <div class="small-width" style="text-align: center;">
+                        <a class="changePage" th:if="*{criteria.pageNum > 1}" th:href="*{criteria.pageNum - 1}"><code>&lt;</code></a>
+                        <code th:text="*{criteria.pageNum}"></code>
+                        <a class="changePage" th:if="*{criteria.pageNum < realEnd}" th:href="*{criteria.pageNum + 1}"><code>&gt;</code></a>
+                    </div>
+                    <!--th:object는 부모 태그의 object에서 먼저 mapping을 해준다. 따라서 *가 아닌 $로 사용한다.-->
+                    <form action="/board/list" th:object="${criteria}" name="pageForm">
+                        <input type="hidden" th:field="*{pageNum}">
+                        <input type="hidden" th:field="*{amount}">
+                        <input type="hidden" th:field="*{type}">
+                        <input type="hidden" th:field="*{keyword}">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/jquery.dropotron.min.js"></script>
+<script src="/js/browser.min.js"></script>
+<script src="/js/breakpoints.min.js"></script>
+<script src="/js/util.js"></script>
+<script src="/js/main.js"></script>
+</body>
+<script th:inline="javascript">
+    let pageInfo = [[${pageDTO.criteria.listLink}]];
+
+    $(document).ready(function(){
+        let bno = [[${bno}]];
+        if(bno == null){
+            return;
+        }
+        alert("게시글 " + bno + "번이 등록되었습니다.");
+    });
+
+    $("a.goRead").click(function(e){
+       e.preventDefault();
+        location.href = "/board/read" + pageInfo + "&bno=" + $(this).attr("href");
+    });
+
+    $("a.changePage").click(function(e){
+        e.preventDefault();
+        $(pageForm).find("input[name='pageNum']").val($(this).attr("href"));
+        $(pageForm).submit();
+    });
+
+    function goSearch(){
+        let $form = $(searchForm);
+        if(!$form.find("option:selected").val()){
+            alert("검색 종류를 선택하세요.");
+            return;
+        }
+        if(!$form.find("input[name='keyword']").val()){
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        $form.submit();
+    }
+</script>
+</html>

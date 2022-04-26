@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.ex04.mapper.TransactionMapper">
+    <insert id="insertTest1">
+        INSERT INTO TBL_TEST1(ID, NAME)
+        VALUES(#{id}, #{name})
+    </insert>
+
+    <insert id="insertTest2">
+        INSERT INTO TBL_TEST2(NUM, NAME)
+        VALUES(SEQ_TEST.NEXTVAL, #{name})
+    </insert>
+</mapper>
